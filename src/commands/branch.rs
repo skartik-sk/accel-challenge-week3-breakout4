@@ -1,15 +1,17 @@
+use crate::error::ItError;
 use std::fs;
-
-pub fn branch(name: Option<String>) -> std::io::Result<()> {
+pub fn branch(name: Option<String>) -> Result<(), ItError> {
     let repo_path = std::env::current_dir()?.join(".it");
+    if !repo_path.exists() || !repo_path.is_dir() {
+        return Err(ItError::NotARepository);
+    }
     let heads_path = repo_path.join("refs/heads");
 
     match name {
         Some(branch_name) => {
             let new_branch_path = heads_path.join(branch_name.clone());
             if new_branch_path.exists() {
-                println!("branch {branch_name} already exists");
-                return Ok(());
+                return Err(ItError::BranchExists(branch_name));
             }
 
             let head_content = fs::read_to_string(repo_path.join("HEAD"))?;
@@ -17,8 +19,7 @@ pub fn branch(name: Option<String>) -> std::io::Result<()> {
             let current_ref_path = repo_path.join(current_ref);
 
             if !current_ref_path.exists() {
-                println!("not a valid ref {current_ref}");
-                return Ok(());
+                return Err(ItError::InvalidRef(current_ref.to_string()));
             }
 
             let current_hash = fs::read_to_string(current_ref_path)?;
