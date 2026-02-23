@@ -1,11 +1,10 @@
-use std::{
-    fs,
-    path::{Path, PathBuf},
-};
-
 use crate::{
     commands::hash_object::{hash_object, hex_to_sha_bytes},
     index::{IndexEntry, read_index, write_index},
+};
+use std::{
+    fs,
+    path::{Path, PathBuf},
 };
 
 pub fn add(paths: Vec<String>) -> std::io::Result<()> {
@@ -30,7 +29,7 @@ fn collect_files(path: &Path, entries: &mut Vec<IndexEntry>) -> std::io::Result<
         for entry in fs::read_dir(path)? {
             let entry = entry?;
             let entry_path = entry.path();
-            if entry.file_name() == ".it" {
+            if entry.file_name() == ".it" || entry.file_name() == "target" {
                 continue;
             }
             collect_files(&entry_path, entries)?;

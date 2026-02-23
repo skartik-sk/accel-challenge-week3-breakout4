@@ -1,5 +1,6 @@
 use clap::{Parser, Subcommand};
 mod commands;
+mod error;
 mod index;
 
 #[derive(Parser)]
@@ -14,6 +15,7 @@ pub enum Commands {
     Branch { name: Option<String> }, // if no name list all branches else create one with name provided
     Switch { name: String },         // switch HEAD to the given branch
     Add { paths: Vec<String> },
+    Write,
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -24,6 +26,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Commands::Branch { name } => commands::branch::branch(name)?,
         Commands::Switch { name } => commands::switch::switch(name)?,
         Commands::Add { paths } => commands::add::add(paths)?,
+        Commands::Write => {
+            commands::write_tree::write_tree()?;
+        }
     }
 
     Ok(())
