@@ -1,4 +1,4 @@
-use crate::error::ItError;
+use crate::{ commands::log::log_branch, error::ItError};
 use std::fs;
 pub fn branch(name: Option<String>) -> Result<(), ItError> {
     let repo_path = std::env::current_dir()?.join(".it");
@@ -24,7 +24,12 @@ pub fn branch(name: Option<String>) -> Result<(), ItError> {
 
             let current_hash = fs::read_to_string(current_ref_path)?;
             fs::write(new_branch_path, current_hash)?;
+            
+     
+            log_branch(&branch_name)?;
+
             println!("branch '{branch_name}' created");
+
         }
 
         None => {

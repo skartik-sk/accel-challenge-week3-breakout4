@@ -1,0 +1,152 @@
+use std::{fs::{self, read_to_string}, io::Write, time::{self, SystemTime, UNIX_EPOCH}};
+
+use crate::error::ItError;
+
+const INITIAL_LOG_HASH:&str = "0000000000000000000000000000000000000000";
+
+
+pub fn log()->Result<(),ItError>{
+        let curr_dir = std::env::current_dir()?;
+
+    let repo_path = curr_dir.join(".it");
+    let head_content  = fs::read_to_string(repo_path.join("HEAD"))?;
+
+    let current_branch_path = head_content.trim_start_matches("ref:").trim();
+
+    let logs_path = repo_path.join("logs/");    
+    let current_branch_logs_path = logs_path.join(current_branch_path);
+
+
+    for line in read_to_string(current_branch_logs_path).unwrap().lines() {
+        println!("{}", line);    
+    }
+
+
+    Ok(())
+}
+
+
+// These are the function which need to be added when committing and branching
+/// Format of out commit logs 
+/// last_commit current_commit_hash dir_name time zone commit : message
+/// 
+/// Save commit message : 
+///    - get the current_commit hash (we can fetch it) 
+///    - get the new_commit_hash    (provided)
+///    - get the dir_name   ( we can get it)
+///    - get time       -
+///    - get zone       - 
+///    - get message    -
+
+pub struct CommitArgs<'info> {
+    new_commit_hash:&'info str,
+    current_commit_hash:&'info str,
+    dir_name:&'info str,
+    time:u64,
+    message:String,
+} 
+
+pub fn form_commit_log(args:CommitArgs)->String{
+        // this is GMT
+    let zone = "+5:30";
+
+    let log = format!("{}",
+            format_args!("{} {} {} {} {} {}\n",
+            args.new_commit_hash,
+            args.current_commit_hash,
+            args.dir_name,args.time,
+            zone,
+            args.message
+        ));
+
+    log
+}
+
+pub fn branch_created_message(new_branch:&str,curr_branch:&str)->String{
+    format!("{}",
+            format_args!("BRANCH FROM {} -> {}",
+                curr_branch,
+                new_branch
+        ))
+}
+pub fn commit_message(msg:&str)->String{
+    format!("{}",format_args!("commit : {}",msg))
+}
+
+// log the commit
+pub fn log_commit(
+    new_commit_hash:&str,
+    message:&str
+)->Result<(),ItError> {
+    let curr_dir = std::env::current_dir()?;
+
+    let repo_path = curr_dir.join(".it");
+    let head_content  = fs::read_to_string(repo_path.join("HEAD"))?;
+
+    let current_branch_path = head_content.trim_start_matches("ref:").trim();
+
+    let current_branch_content = fs::read_to_string(repo_path.join(current_branch_path))?;
+    let current_commit_hash = &current_branch_content.trim();
+
+
+    let dir_name = curr_dir.to_str().expect("Could not get the directory name");
+    // this will give local machine time
+    let time = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("Time went backwards")
+            .as_secs();
+
+    let message = commit_message(message);
+    // this is for commit action
+    let log_string = form_commit_log(CommitArgs { new_commit_hash, current_commit_hash, dir_name, time, message  });
+
+    let logs_path = repo_path.join("logs/");    
+    let current_branch_logs_path = logs_path.join(current_branch_path);
+
+    let mut current_branch_log_file = fs::OpenOptions::new().create(true).append(true).open(current_branch_logs_path).expect("Cannot Open File");
+
+
+    current_branch_log_file.write(log_string.as_bytes()).expect("Could not write to file");
+    Ok(())
+}
+
+// log branch
+pub fn log_branch(new_branch:&str)->Result<(),ItError>{
+
+    let curr_dir = std::env::current_dir()?;
+
+    let repo_path = curr_dir.join(".it");
+    let head_content  = fs::read_to_string(repo_path.join("HEAD"))?;
+
+    let current_branch_path = head_content.trim_start_matches("ref:").trim();
+
+    let current_branch_content = fs::read_to_string(repo_path.join(current_branch_path))?;
+    let current_commit_hash = &current_branch_content.trim();
+
+
+    let dir_name = curr_dir.to_str().expect("Could not get the directory name");
+    // this will give local machine time
+    let time = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("Time went backwards")
+            .as_secs();
+
+
+
+    let current_branch_name = head_content.trim_start_matches("ref: refs/heads/").trim();
+
+    // this is for branch action
+    let log_string = form_commit_log(CommitArgs { new_commit_hash:current_commit_hash, current_commit_hash:INITIAL_LOG_HASH, dir_name, time,message: branch_created_message(new_branch, current_branch_name) });
+
+    let logs_path = repo_path.join("logs/refs/heads");    
+    let new_branch_logs_path = logs_path.join(new_branch);
+
+    let mut branch_log_file = fs::OpenOptions::new().create(true).append(true).open(new_branch_logs_path).expect("Cannot Open File");
+
+
+    branch_log_file.write(log_string.as_bytes()).expect("Could not write to file");
+
+    Ok(())
+}
+
+
