@@ -12,6 +12,32 @@ This project currently supports repository initialization, staging files, branch
 - `.it/index` - staging area
 - `.it/logs` - commit and branch logs
 
+## Current Architecture
+
+```mermaid
+flowchart TD
+  CLI[CLI: src/main.rs + clap] --> INIT[init command]
+  CLI --> ADD[add command]
+  CLI --> BRANCH[branch command]
+  CLI --> SWITCH[switch command]
+  CLI --> COMMIT[commit flow]
+  CLI --> LOG[log command]
+
+  ADD --> INDEX[src/index.rs]
+  ADD --> HASH[hash_object utilities]
+  COMMIT --> WT[write_tree.rs]
+  COMMIT --> CT[commit_tree.rs]
+  WT --> HASH
+  CT --> HASH
+
+  INIT --> REPO[.it repository]
+  INDEX --> REPO
+  HASH --> REPO
+  BRANCH --> REPO
+  SWITCH --> REPO
+  LOG --> REPO
+```
+
 ## Run the CLI
 
 Use Cargo to run commands:
