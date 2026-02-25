@@ -1,4 +1,3 @@
-use crate::commands::log::log_commit;
 use crate::error::ItError;
 use flate2::read::ZlibDecoder;
 use std::fs;

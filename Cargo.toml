@@ -3,6 +3,11 @@ name = "accel-challenge-week3-breakout4"
 version = "0.1.0"
 edition = "2024"
 
+[[bin]]
+name = "it"
+path = "src/main.rs"
+
+
 [dependencies]
 clap = { version = "4.5.60", features = ["derive"] }
 flate2 = "1.1.9"

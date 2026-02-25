@@ -6,6 +6,7 @@ use std::{
 
 use crate::{
     commands::hash_object::{compress_data, compute_hash, store_object},
+    commands::log::log_commit,
     error::ItError,
 };
 
@@ -29,8 +30,7 @@ pub fn commit_tree(
 
     let mut content = String::new();
     content.push_str(&format!("tree {}\n", tree_hash));
-
-    if let Some(parent_hash) = parent {
+    if let Some(parent_hash) = &parent {
         content.push_str(&format!("parent {}\n", parent_hash));
     }
 
@@ -66,6 +66,8 @@ pub fn commit_tree(
     } else {
         println!("HEAD is detached; commit created without updating refs");
     }
+
+    log_commit(&commit_hash, parent.clone(), message)?;
 
     println!("committed: {}", commit_hash[..8].to_string());
     Ok(commit_hash)

@@ -15,7 +15,7 @@ pub fn write_tree() -> Result<String, ItError> {
     }
 
     let hash = build_tree(&entries, "")?;
-    println!("{}", hash);
+    //println!("{}", hash);
 
     Ok(hash)
 }
