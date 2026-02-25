@@ -5,7 +5,7 @@ use crate::error::ItError;
 use crate::index::{IndexEntry, read_index};
 use std::collections::BTreeMap;
 use std::path::Path;
-
+use colored::*;
 pub fn write_tree() -> Result<String, ItError> {
     let repo_path = Path::new(".it");
     let entries = read_index(repo_path)?;
@@ -15,7 +15,7 @@ pub fn write_tree() -> Result<String, ItError> {
     }
 
     let hash = build_tree(&entries, "")?;
-    //println!("{}", hash);
+    println!("{}", hash.blue());
 
     Ok(hash)
 }

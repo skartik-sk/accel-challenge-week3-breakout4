@@ -3,6 +3,7 @@ use flate2::read::ZlibDecoder;
 use std::fs;
 use std::io::Read;
 use std::path::Path;
+use colored::*;
 
 pub fn reset() -> Result<(), Box<dyn std::error::Error>> {
     let repo_path = std::path::Path::new(".it");
@@ -23,9 +24,10 @@ pub fn reset() -> Result<(), Box<dyn std::error::Error>> {
         fs::write(&branch_path, &parent)?;
         restore_from_hash(&parent)?;
         // maybe log?
-        println!("moved to parent branch {}", parent);
+        println!("{} {}","moved to parent branch".green(), parent.yellow().bold());
     } else {
-        println!("no parent commit found.");
+        println!("{} {}", "⚠".yellow().bold(), "no parent commit found.".yellow());
+         
     }
 
     Ok(())
@@ -42,7 +44,7 @@ pub fn restore_from_hash(commit_hash: &str) -> Result<(), Box<dyn std::error::Er
         .map(|line| line.trim_start_matches("tree ").trim())
         .ok_or("no tree found")?;
 
-    println!("restoring to tree: {}", tree_hash);
+    println!("{} {}", "restoring to tree:".blue().bold(),tree_hash.cyan());
     restore_tree(tree_hash, Path::new("."))?;
     Ok(())
 }

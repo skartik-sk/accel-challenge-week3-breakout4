@@ -1,3 +1,4 @@
+use colored::Colorize;
 use sha1::{Digest, Sha1};
 use std::fs;
 use std::path::Path;
@@ -20,7 +21,7 @@ pub fn read_index(repo_path: &Path) -> Result<Vec<IndexEntry>, std::io::Error> {
     }
 
     if data.len() < 12 || &data[0..4] != b"DIRC" {
-        println!("Invalid Object Format");
+        println!("{}","Invalid Object Format".red());
     }
 
     let entry_count = u32::from_be_bytes(data[8..12].try_into().unwrap()) as usize;
@@ -29,7 +30,7 @@ pub fn read_index(repo_path: &Path) -> Result<Vec<IndexEntry>, std::io::Error> {
 
     for _ in 0..entry_count {
         if pos + 62 > data.len() {
-            println!("Invalid Object Len");
+            println!("{}","Invalid Object Len".red());
         }
 
         let sha: [u8; 20] = data[pos + 40..pos + 60].try_into().unwrap();

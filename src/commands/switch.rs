@@ -1,3 +1,5 @@
+use colored::Colorize;
+
 use crate::error::ItError;
 use flate2::read::ZlibDecoder;
 use std::io::Read;
@@ -20,7 +22,7 @@ pub fn switch(branch_name: String) -> Result<(), ItError> {
     let current_branch = head_content.trim_start_matches("ref: refs/heads/").trim();
 
     if current_branch == branch_name {
-        println!("already on '{branch_name}'");
+        println!("{} {}","already on".yellow(),branch_name.cyan());
         return Ok(());
     }
 
@@ -45,7 +47,7 @@ pub fn switch(branch_name: String) -> Result<(), ItError> {
         repo_path.join("HEAD"),
         format!("ref: refs/heads/{branch_name}\n"),
     )?;
-    println!("switched to branch '{branch_name}'");
+    println!("{} {}","switched to branch".yellow(),branch_name.cyan());
 
     Ok(())
 }

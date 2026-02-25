@@ -9,6 +9,7 @@ use crate::{
     commands::log::log_commit,
     error::ItError,
 };
+use colored::*;
 
 pub fn commit_tree(
     tree_hash: &str,
@@ -64,12 +65,12 @@ pub fn commit_tree(
         fs::create_dir_all(ref_path.parent().unwrap())?;
         fs::write(&ref_path, &commit_hash)?;
     } else {
-        println!("HEAD is detached; commit created without updating refs");
+        println!("{}","HEAD is detached; commit created without updating refs".yellow().bold());
     }
 
     log_commit(&commit_hash, parent.clone(), message)?;
 
-    println!("committed: {}", commit_hash[..8].to_string());
+    println!(" {} {}","committed:".green(), commit_hash[..8].to_string().yellow().bold());
     Ok(commit_hash)
 }
 

@@ -5,7 +5,7 @@ use crate::commands::log::log_commit;
 mod commands;
 mod error;
 mod index;
-
+mod color_utils;
 #[derive(Parser)]
 pub struct Cli {
     #[command(subcommand)]
@@ -35,7 +35,7 @@ pub enum Commands {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
 
-    match cli.command {
+ match cli.command {
         Commands::Init => commands::init::init()?,
         Commands::Branch { name } => commands::branch::branch(name)?,
         Commands::Switch { name } => commands::switch::switch(name)?,
@@ -47,7 +47,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             commands::commit_tree::commit_tree(&tree_hash, parent_hash, &message)?;
         }
         Commands::Reset => commands::reset::reset()?,
-    }
+    };
+   
 
     Ok(())
 }

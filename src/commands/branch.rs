@@ -1,3 +1,5 @@
+use colored::Colorize;
+
 use crate::{ commands::log::log_branch, error::ItError};
 use std::fs;
 pub fn branch(name: Option<String>) -> Result<(), ItError> {
@@ -26,9 +28,9 @@ pub fn branch(name: Option<String>) -> Result<(), ItError> {
             fs::write(new_branch_path, current_hash)?;
             
      
-            log_branch(&branch_name)?;
 
-            println!("branch '{branch_name}' created");
+            log_branch(&branch_name)?;
+            println!("{} {} ",  "branch".green(), format!("'{}' created", branch_name.cyan()).bold());
 
         }
 
@@ -40,9 +42,9 @@ pub fn branch(name: Option<String>) -> Result<(), ItError> {
             for entry in entries {
                 let entry = entry?;
                 if current_branch.eq(entry.file_name().to_str().unwrap()) {
-                    println!("* {}", entry.file_name().to_string_lossy());
+                    println!("{} {}","*".green(), entry.file_name().to_string_lossy().cyan().bold());
                 } else {
-                    println!("  {}", entry.file_name().to_string_lossy());
+                    println!("  {}", entry.file_name().to_string_lossy().white());
                 }
             }
         }

@@ -1,6 +1,7 @@
 use std::fmt;
 use std::io;
 use std::path::PathBuf;
+use colored::*;
 
 #[derive(Debug)]
 pub enum ItError {
@@ -22,21 +23,22 @@ impl fmt::Display for ItError {
             ItError::NotARepository => {
                 write!(
                     f,
-                    "fatal: not a it repository. Run 'it init' to create a new repository."
+                    "{}",
+                   "fatal: not a it repository. Run 'it init' to create a new repository.".red().bold()
                 )
             }
             ItError::BranchExists(name) => {
-                write!(f, "fatal: A branch named '{name}' already exists.")
+                write!(f, "{}", format!(" fatal: A branch named '{name}' already exists.").red().bold())
             }
             ItError::InvalidRef(ref_path) => {
-                write!(f, "fatal: not a valid ref '{ref_path}'")
+                write!(f,"{}", format!("fatal: not a valid ref '{ref_path}'").red().bold())
             }
             ItError::BranchNotFound(name) => {
-                write!(f, "fatal: branch '{name}' does not exist")
+                write!(f, "{}",format!("fatal: branch '{name}' does not exist").red().bold())
             }
-            ItError::Io(e) => write!(f, "fatal: {e}"),
+            ItError::Io(e) => write!(f,"{}", format!("fatal: {e}").red().bold()),
             ItError::NothingToCommit => {
-                write!(f, "NothingToCommit")
+                write!(f, "{}","NothingToCommit".red().bold())
             }
         }
     }

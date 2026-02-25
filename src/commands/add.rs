@@ -6,6 +6,7 @@ use std::{
     fs,
     path::{Path, PathBuf},
 };
+use colored::*;
 
 pub fn add(paths: Vec<String>) -> std::io::Result<()> {
     let repo_path = std::env::current_dir().unwrap().join(".it");
@@ -14,7 +15,7 @@ pub fn add(paths: Vec<String>) -> std::io::Result<()> {
     for path_str in &paths {
         let path = PathBuf::from(path_str);
         if !path.exists() {
-            println!("error: '{}' did not match any files", path_str);
+            println!("{}",format!("error: '{}' did not match any files", path_str).red());
             continue;
         }
         collect_files(&path, &mut entries).unwrap();

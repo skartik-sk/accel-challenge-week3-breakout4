@@ -4,6 +4,8 @@ use std::{
     time::{self, SystemTime, UNIX_EPOCH},
 };
 
+use colored::Colorize;
+
 use crate::{commands::commit_tree::get_parent, error::ItError};
 
 pub fn log() -> Result<(), ItError> {
@@ -17,9 +19,49 @@ pub fn log() -> Result<(), ItError> {
     let logs_path = repo_path.join("logs/");
     let current_branch_logs_path = logs_path.join(current_branch_path);
 
-    for line in read_to_string(current_branch_logs_path).unwrap().lines() {
-        println!("{}", line);
+    // Handle missing log file gracefully
+    let log_content = match fs::read_to_string(&current_branch_logs_path) {
+        Ok(content) => content,
+        Err(_) => {
+            println!("{}", "ℹ No commits yet. Make your first commit with: it commit -m \"message\"".cyan().bold());
+            return Ok(());
+        }
+    };
+
+    for line in log_content.lines() {
+        let parts: Vec<&str> = line.split_whitespace().collect();
+               
+               if parts.len() >= 6 {
+                   // Colorize hash (green)
+                   let hash = parts[0].bright_green().bold();
+                   
+                   // Colorize parent hash (dimmed if zeros, yellow if has value)
+                   let parent = if parts[1] == "0000000000000000000000000000000000000000" {
+                       parts[1].dimmed()
+                   } else {
+                       parts[1].yellow()
+                   };
+                   
+                   let dir = parts[2].cyan();
+                   let time = parts[3].magenta();
+                   let zone = parts[4].yellow();
+                   
+                   let message = line.split_whitespace().skip(5).collect::<Vec<_>>().join(" ");
+                   let colored_msg = message
+                       .replace("commit :", &"commit :".bright_blue().bold())
+                       .replace("BRANCH FROM", &"BRANCH FROM".bright_cyan().bold());
+                   
+                   // Print with colors
+                   println!("{} \n{} \n{} {} \n{} \n{} ",
+                       hash, parent, time, zone, dir, colored_msg.white()
+                   );
+                   
+                   // ADD NEWLINE HERE
+                   println!();} else {
+            println!("{}", line);
+        }
     }
+
 
     Ok(())
 }
@@ -65,11 +107,11 @@ pub fn form_commit_log(args: CommitArgs) -> String {
 pub fn branch_created_message(new_branch: &str, curr_branch: &str) -> String {
     format!(
         "{}",
-        format_args!("BRANCH FROM {} -> {}", curr_branch, new_branch)
+        format_args!("{} {} -> {}","BRANCH FROM".bright_cyan().bold(), curr_branch.yellow(), new_branch.green().bold())
     )
 }
 pub fn commit_message(msg: &str) -> String {
-    format!("{}", format_args!("commit : {}", msg))
+    format!("{}", format_args!("{} {}","commit :".bright_blue().bold(), msg.white().bold()))
 }
 
 // log the commit

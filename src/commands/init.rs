@@ -1,12 +1,16 @@
 use std::{env, fs};
+use colored::*;
 
 pub fn init() -> Result<(), std::io::Error> {
     let repo_path = env::current_dir()?.join(".it");
     if repo_path.exists() && repo_path.is_dir() {
-        println!("Already a IT Repository");
+        println!("{} {}", "✓".green().bold(), "Already a IT Repository".green());
         return Ok(());
     }
-
+    
+    println!("{}", "Initializing IT repository...".cyan().bold());
+       
+     
     fs::create_dir_all(repo_path.join("objects"))?;
     fs::create_dir_all(repo_path.join("refs/heads"))?;
 
@@ -20,5 +24,7 @@ pub fn init() -> Result<(), std::io::Error> {
 
     // for it add command (staging area)
     fs::File::create(repo_path.join("index"))?;
+    println!("{}", "✓ Initialized empty IT repository".green().bold());
+      
     Ok(())
 }
